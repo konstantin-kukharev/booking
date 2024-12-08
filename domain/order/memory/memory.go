@@ -12,32 +12,33 @@ import (
 // MemoryRepository fulfills the OrderRepository interface
 type MemoryRepository struct {
 	orders map[string]entity.Order
-	sync.RWMutex
+	mx     *sync.RWMutex
 }
 
 // New is a factory function to generate a new repository of orders
 func New() *MemoryRepository {
 	return &MemoryRepository{
 		orders: make(map[string]entity.Order),
+		mx:     &sync.RWMutex{},
 	}
 }
 
 // Get finds a order by ID
 func (mr *MemoryRepository) Get(id string) (entity.Order, bool) {
-	mr.RLock()
+	mr.mx.RLock()
 	o, ok := mr.orders[id]
-	mr.RUnlock()
+	mr.mx.RUnlock()
 
 	return o, ok
 }
 
 // Add will add a new order to the repository
 func (mr *MemoryRepository) Add(o *entity.Order) error {
-	mr.Lock()
-	defer mr.Unlock()
+	mr.mx.Lock()
+	defer mr.mx.Unlock()
 
 	if mr.orders == nil {
-		// Saftey check if order is not create
+		// Safety check if order is not create
 		mr.orders = make(map[string]entity.Order)
 	}
 	// Make sure order isn't already in the repository

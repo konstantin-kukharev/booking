@@ -25,20 +25,21 @@ func newInterval() interval {
 // MemoryRepository fulfills the RoomAvailabilityRepository interface
 type MemoryRepository struct {
 	rooms map[key]interval
-	sync.RWMutex
+	mx    *sync.RWMutex
 }
 
 // New is a factory function to generate a new repository of orders
 func New() *MemoryRepository {
 	return &MemoryRepository{
 		rooms: make(map[key]interval),
+		mx:    &sync.RWMutex{},
 	}
 }
 
 // Get finds RoomAvailability by hotel, room, date
 func (mr *MemoryRepository) Get(h, r string, d time.Time) (entity.RoomAvailability, bool) {
-	mr.RLock()
-	defer mr.RUnlock()
+	mr.mx.RLock()
+	defer mr.mx.RUnlock()
 	i, ok := mr.rooms[key{hotel: h, room: r}]
 	if !ok {
 		return entity.RoomAvailability{}, false
@@ -54,8 +55,8 @@ func (mr *MemoryRepository) Get(h, r string, d time.Time) (entity.RoomAvailabili
 // GetList finds list of RoomAvailability by hotel and room
 func (mr *MemoryRepository) GetList(h, r string) []entity.RoomAvailability {
 	list := make([]entity.RoomAvailability, 0)
-	mr.RLock()
-	defer mr.RUnlock()
+	mr.mx.RLock()
+	defer mr.mx.RUnlock()
 	if i, ok := mr.rooms[key{hotel: h, room: r}]; ok {
 		for t, q := range i.Data {
 			list = append(list, entity.RoomAvailability{HotelID: h, RoomID: r, Date: t, Quota: q})
@@ -67,8 +68,10 @@ func (mr *MemoryRepository) GetList(h, r string) []entity.RoomAvailability {
 
 // Add will add a new room(s) to the repository
 func (mr *MemoryRepository) Add(av ...entity.RoomAvailability) error {
+	mr.mx.Lock()
+	defer mr.mx.Unlock()
 	if mr.rooms == nil {
-		// Saftey check if room is not create
+		// Safety check if room is not create
 		mr.rooms = make(map[key]interval)
 	}
 

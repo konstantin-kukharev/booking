@@ -1,0 +1,14 @@
+version: '3.4'
+services:
+  booking_service:
+    container_name: booking_service
+    build:
+      context: ../
+      dockerfile: deployments/delve.Dockerfile
+      target: dev-runner
+      args:
+        APPLICATION_NAME: order
+    command: "--listen=0.0.0.0:40000 --headless=true --log=true --log-output=debuglineerr,gdbwire,lldbout --api-version=2 --accept-multiclient exec /application"
+    ports:
+      - "40000:40000"
+      - "8080:8080"

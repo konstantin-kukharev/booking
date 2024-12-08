@@ -18,13 +18,8 @@ func main() {
 }
 
 func run(app config.Application) error {
-	availService := service.NewAvailabilityService().
-		WithMemoryRoomAvailabilityRepository().
-		WithLogger(app.Log())
-	orderService := service.NewOrderService().
-		WithMemoryOrderRepository().
-		WithRoomAvailabilityService(availService).
-		WithLogger(app.Log())
+	availService := service.NewAvailabilityService(app.Log())
+	orderService := service.NewOrderService(app.Log(), availService)
 
 	hOrderAdd := orderHandler.NewOrderCreate(orderService)
 	hOrderGet := orderHandler.NewOrderGet(orderService)
@@ -36,15 +31,10 @@ func run(app config.Application) error {
 		r.Post("/orders", hOrderAdd.ServeHTTP)
 		r.Post("/availability", hAvailAdd.ServeHTTP)
 		r.Get("/orders/{ID}", hOrderGet.ServeHTTP)
-		r.Get("/availability", hAvailGet.ServeHTTP)
+		r.Get("/availability/{HotelID}/{RoomID}", hAvailGet.ServeHTTP)
 	})
 
 	app.Log().Info("Server listening on", "address", app.GetServerAddress())
 
-	server := &http.Server{
-		Addr:    app.GetServerAddress(),
-		Handler: r,
-	}
-
-	return server.ListenAndServe()
+	return http.ListenAndServe(app.GetServerAddress(), r)
 }

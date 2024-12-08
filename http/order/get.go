@@ -15,6 +15,7 @@ type OrderGet struct {
 func NewOrderGet(srv service.OrderService) *OrderGet {
 	handler := new(OrderGet)
 	handler.srv = srv
+
 	return handler
 }
 
@@ -22,12 +23,14 @@ func (s *OrderGet) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	orderID := chi.URLParam(r, "ID")
 	if orderID == "" {
 		w.WriteHeader(http.StatusBadRequest)
+
 		return
 	}
 
 	order, ok := s.srv.GetOrder(orderID)
 	if !ok {
 		w.WriteHeader(http.StatusNotFound)
+
 		return
 	}
 
@@ -35,6 +38,7 @@ func (s *OrderGet) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		w.Write(resp)
+
 		return
 	}
 

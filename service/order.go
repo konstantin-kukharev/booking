@@ -20,9 +20,12 @@ type Order struct {
 	log          config.Logger
 }
 
-func NewOrderService() *Order {
+func NewOrderService(l config.Logger, a AvailabilityService) *Order {
 	// Create the order service
-	os := new(Order)
+	os := new(Order).
+		WithMemoryOrderRepository().
+		WithRoomAvailabilityService(a).
+		WithLogger(l)
 
 	return os
 }
@@ -91,6 +94,6 @@ func (o *Order) CreateOrder(no *entity.Order) error {
 
 // GetOrder will get order from repository
 func (o *Order) GetOrder(id string) (entity.Order, bool) {
-	order, ok := o.orders.Get(id)
-	return order, ok
+	og, ok := o.orders.Get(id)
+	return og, ok
 }

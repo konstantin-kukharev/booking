@@ -30,7 +30,7 @@ func (c *Config) GetServerAddress() string {
 
 func New() *Config {
 	s := new(Settings)
-	//init application settings
+	// init application settings
 	s.Address = pkg.DefaultServerAddr
 	if envRunAddr := os.Getenv("ADDRESS"); envRunAddr != "" {
 		s.Address = envRunAddr
@@ -39,7 +39,7 @@ func New() *Config {
 	cfg := new(Config)
 	cfg.s = s
 
-	//init application logger
+	// init application logger
 	errHandler := slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
 		Level: slog.LevelError,
 	})

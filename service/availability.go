@@ -20,9 +20,11 @@ type Availability struct {
 	log          config.Logger
 }
 
-func NewAvailabilityService() *Availability {
+func NewAvailabilityService(l config.Logger) *Availability {
 	// Create the availability service
-	as := new(Availability)
+	as := new(Availability).
+		WithMemoryRoomAvailabilityRepository().
+		WithLogger(l)
 
 	return as
 }
@@ -56,15 +58,15 @@ func (a *Availability) AddRoomAvailability(ra ...entity.RoomAvailability) error 
 }
 
 // GetRoomAvailability get availability by hotel id & room id & date
-func (a *Availability) GetRoomAvailability(hotel, room string, date time.Time) (entity.RoomAvailability, bool) {
+func (a *Availability) GetRoomAvailability(h, r string, d time.Time) (entity.RoomAvailability, bool) {
 	// Add orders to repo
-	a.log.Debug("get room availability", "hotel", hotel, "room", room, "date", date)
-	return a.availability.Get(hotel, room, date)
+	a.log.Debug("get room availability", "hotel", h, "room", r, "date", d)
+	return a.availability.Get(h, r, d)
 }
 
 // GetRoomAvailabilityList get availability list by hotel id & room id
-func (a *Availability) GetRoomAvailabilityList(hotel, room string) []entity.RoomAvailability {
+func (a *Availability) GetRoomAvailabilityList(h, r string) []entity.RoomAvailability {
 	// Add orders to repo
-	a.log.Debug("get room availability", "hotel", hotel, "room", room)
-	return a.availability.GetList(hotel, room)
+	a.log.Debug("get room availability", "hotel", h, "room", r)
+	return a.availability.GetList(h, r)
 }

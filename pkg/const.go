@@ -1,3 +1,3 @@
 package pkg
 
-const DefaultServerAddr = "localhost:8080"
+const DefaultServerAddr = ":8080"

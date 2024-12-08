@@ -1,0 +1,12 @@
+version: '3.4'
+services:
+  booking_service:
+    container_name: booking_service
+    build:
+      context: ../
+      dockerfile: deployments/Dockerfile
+      target: dev-runner
+      args:
+        APPLICATION_NAME: order
+    ports:
+      - "8080:8080"
